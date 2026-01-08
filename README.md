@@ -106,12 +106,6 @@ pnpm run build
 - `./manifest.json` - プラグインマニフェスト
 - `./styles.css` - スタイルシート
 
-### リリース
-新しいバージョンをリリースする方法は [RELEASE_GUIDE.md](RELEASE_GUIDE.md) を参照してください。
-
-### コミュニティプラグイン申請
-Obsidianコミュニティプラグインとして申請する方法は [COMMUNITY_PLUGIN_SUBMISSION.md](COMMUNITY_PLUGIN_SUBMISSION.md) を参照してください。
-
 ## 貢献
 
 バグ報告や機能提案は [Issues](https://github.com/mizuki-momose/obsidian-kindle-book-info/issues) でお願いします。
