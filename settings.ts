@@ -137,7 +137,7 @@ export class KindleBookInfoSettingTab extends PluginSettingTab {
 		// ファイル名テンプレート設定
 		new Setting(containerEl)
 			.setName('ファイル名テンプレート')
-			.setDesc('ファイル名のテンプレート（使用可能: {{title}}, {{authors}}, {{asin}}, {{series}}, {{volume}})')
+			.setDesc('ファイル名のテンプレート（使用可能: {{title}}, {{asin}}, {{isbn10}}, {{isbn13}}）')
 			.addText(text => text
 				.setPlaceholder('{{title}}')
 				.setValue(this.plugin.settings.filenameTemplate)
