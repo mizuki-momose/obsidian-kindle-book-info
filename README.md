@@ -85,14 +85,37 @@ URL: {{url}}
 - 対応バージョン: Obsidian 0.15.0 以上（デスクトップ/モバイル対応）
 - プライバシー: Amazonのページ取得に外部アクセスしますが、Vault内の内容は外部へ送信しません
 
-## 開発（簡易）
-- ビルド成果物はプロジェクト直下に生成（./main.js, ./manifest.json, ./styles.css）
-- 開発コマンド（任意）:
+## 開発
+
+### セットアップ
 
 ```bash
+# 依存関係のインストール
 pnpm install
+
+# 開発ビルド（ウォッチモード）
+pnpm run dev
+
+# プロダクションビルド
 pnpm run build
 ```
+
+### ビルド出力
+ビルド成果物はプロジェクト直下に生成されます:
+- `./main.js` - プラグイン本体
+- `./manifest.json` - プラグインマニフェスト
+- `./styles.css` - スタイルシート
+
+### リリース
+新しいバージョンをリリースする方法は [RELEASE_GUIDE.md](RELEASE_GUIDE.md) を参照してください。
+
+### コミュニティプラグイン申請
+Obsidianコミュニティプラグインとして申請する方法は [COMMUNITY_PLUGIN_SUBMISSION.md](COMMUNITY_PLUGIN_SUBMISSION.md) を参照してください。
+
+## 貢献
+
+バグ報告や機能提案は [Issues](https://github.com/mizuki-momose/obsidian-kindle-book-info/issues) でお願いします。
+Pull Requestも歓迎です！
 
 ## ライセンス
 MIT
