@@ -3,13 +3,14 @@ import { en, TranslationKey, placeholders_en } from './locales/en';
 import { ja, placeholders_ja } from './locales/ja';
 
 type Translations = typeof en;
+type SupportedLocale = 'en' | 'ja';
 
-const translations: Record<string, Translations> = {
+const translations: Record<SupportedLocale, Translations> = {
 	en,
 	ja,
 };
 
-const placeholders: Record<string, Array<{ key: string, desc: string }>> = {
+const placeholders: Record<SupportedLocale, Array<{ key: string, desc: string }>> = {
 	en: placeholders_en,
 	ja: placeholders_ja,
 };
@@ -17,7 +18,7 @@ const placeholders: Record<string, Array<{ key: string, desc: string }>> = {
 /**
  * Get the current locale based on Obsidian's language setting
  */
-export function getCurrentLocale(): string {
+export function getCurrentLocale(): SupportedLocale {
 	// Get Obsidian's locale setting
 	const obsidianLocale = moment.locale();
 	

@@ -58,6 +58,7 @@ export function getSampleTemplate(): string {
 /**
  * サンプルテンプレート（デフォルト：英語）
  * Sample template (default: English)
+ * @deprecated Use getSampleTemplate() instead to get the template for the current locale
  */
 export const SAMPLE_TEMPLATE = `---
 Title: {{title}}

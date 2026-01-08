@@ -95,6 +95,8 @@ URL: {{url}}
 	template_notes_heading: '## メモ',
 };
 
+export type TranslationKey = keyof typeof ja;
+
 /**
  * Placeholder definitions for settings page
  */
