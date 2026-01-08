@@ -193,6 +193,17 @@ export class KindleBookInfoSettingTab extends PluginSettingTab {
 				return text;
 			});
 
+		// リボンアイコン表示設定
+		new Setting(containerEl)
+			.setName('リボンアイコンを表示')
+			.setDesc('左側のリボンエリアにKindle書籍ノート作成アイコンを表示する（変更後、Obsidianを再起動してください）')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.showRibbonIcon)
+				.onChange(async (value) => {
+					this.plugin.settings.showRibbonIcon = value;
+					await this.plugin.saveSettings();
+				}));
+
 		// サンプルテンプレートセクション
 		containerEl.createEl('h3', { text: 'サンプルテンプレート' });
 		
@@ -242,6 +253,7 @@ export class KindleBookInfoSettingTab extends PluginSettingTab {
 					this.plugin.settings.targetFolder = DEFAULT_SETTINGS.targetFolder;
 					this.plugin.settings.imageFolder = DEFAULT_SETTINGS.imageFolder;
 					this.plugin.settings.filenameTemplate = DEFAULT_SETTINGS.filenameTemplate;
+					this.plugin.settings.showRibbonIcon = DEFAULT_SETTINGS.showRibbonIcon;
 					await this.plugin.saveSettings();
 					this.display();
 				}));

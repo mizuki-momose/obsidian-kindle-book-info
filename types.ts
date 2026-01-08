@@ -40,6 +40,8 @@ export interface KindleBookInfoSettings {
 	filenameTemplate: string;
 	/** テンプレートファイルのパス */
 	templateFilePath: string;
+	/** リボンアイコンを表示するかどうか */
+	showRibbonIcon: boolean;
 }
 
 /**
@@ -77,4 +79,5 @@ export const DEFAULT_SETTINGS: KindleBookInfoSettings = {
 	downloadImages: true,
 	filenameTemplate: '{{title}}',
 	templateFilePath: '',
+	showRibbonIcon: false,
 };
