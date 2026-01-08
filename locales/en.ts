@@ -48,26 +48,8 @@ export const en = {
 	settings_show_ribbon_icon_name: 'Show ribbon icon',
 	settings_show_ribbon_icon_desc: 'Display Kindle book note creation icon in the left ribbon area (requires Obsidian restart after change)',
 	settings_sample_template_title: 'Sample Template',
-	settings_sample_template_placeholders: `
-		<p>Available placeholders:</p>
-		<ul>
-			<li><code>{{title}}</code> - Title</li>
-			<li><code>{{authors}}</code> - Authors (YAML array format)</li>
-			<li><code>{{published}}</code> - Publication date</li>
-			<li><code>{{series}}</code> - Series</li>
-			<li><code>{{volume}}</code> - Volume</li>
-			<li><code>{{asin}}</code> - ASIN</li>
-			<li><code>{{isbn10}}</code> - ISBN-10</li>
-			<li><code>{{isbn13}}</code> - ISBN-13</li>
-			<li><code>{{thumbnail}}</code> - Thumbnail</li>
-			<li><code>{{thumbnail_display}}</code> - Thumbnail (display format)</li>
-			<li><code>{{url}}</code> - URL</li>
-			<li><code>{{description}}</code> - Description (full)</li>
-			<li><code>{{description_short}}</code> - Description (short)</li>
-			<li><code>{{created}}</code> - Created date</li>
-		</ul>
-		<p>Conditional blocks: <code>{{#isbn10}}...{{/isbn10}}</code>, <code>{{#isbn13}}...{{/isbn13}}</code></p>
-	`,
+	settings_sample_template_intro: 'Available placeholders:',
+	settings_conditional_blocks: 'Conditional blocks: {{#isbn10}}...{{/isbn10}}, {{#isbn13}}...{{/isbn13}}',
 	settings_reset_name: 'Reset to default',
 	settings_reset_desc: 'Reset settings to default',
 	settings_reset_button: 'Reset',
@@ -114,3 +96,23 @@ Created: {{created}}
 };
 
 export type TranslationKey = keyof typeof en;
+
+/**
+ * Placeholder definitions for settings page
+ */
+export const placeholders_en = [
+	{ key: '{{title}}', desc: 'Title' },
+	{ key: '{{authors}}', desc: 'Authors (YAML array format)' },
+	{ key: '{{published}}', desc: 'Publication date' },
+	{ key: '{{series}}', desc: 'Series' },
+	{ key: '{{volume}}', desc: 'Volume' },
+	{ key: '{{asin}}', desc: 'ASIN' },
+	{ key: '{{isbn10}}', desc: 'ISBN-10' },
+	{ key: '{{isbn13}}', desc: 'ISBN-13' },
+	{ key: '{{thumbnail}}', desc: 'Thumbnail' },
+	{ key: '{{thumbnail_display}}', desc: 'Thumbnail (display format)' },
+	{ key: '{{url}}', desc: 'URL' },
+	{ key: '{{description}}', desc: 'Description (full)' },
+	{ key: '{{description_short}}', desc: 'Description (short)' },
+	{ key: '{{created}}', desc: 'Created date' },
+];

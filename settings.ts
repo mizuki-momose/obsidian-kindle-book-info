@@ -1,7 +1,7 @@
 import { App, PluginSettingTab, Setting, TFolder, TFile, AbstractInputSuggest } from 'obsidian';
 import KindleBookInfoPlugin from './main';
 import { getSampleTemplate } from './types';
-import { t } from './i18n';
+import { t, getPlaceholders } from './i18n';
 
 /**
  * フォルダサジェスト機能
@@ -209,7 +209,18 @@ export class KindleBookInfoSettingTab extends PluginSettingTab {
 		containerEl.createEl('h3', { text: t('settings_sample_template_title') });
 		
 		const templateDesc = containerEl.createDiv({ cls: 'setting-item-description' });
-		templateDesc.innerHTML = t('settings_sample_template_placeholders');
+		
+		// Build the placeholders description using DOM manipulation
+		templateDesc.createEl('p', { text: t('settings_sample_template_intro') });
+		
+		const ul = templateDesc.createEl('ul');
+		getPlaceholders().forEach((placeholder) => {
+			const li = ul.createEl('li');
+			li.createEl('code', { text: placeholder.key });
+			li.appendText(' - ' + placeholder.desc);
+		});
+		
+		templateDesc.createEl('p', { text: t('settings_conditional_blocks') });
 
 		new Setting(containerEl)
 			.setName(t('settings_sample_template_title'))

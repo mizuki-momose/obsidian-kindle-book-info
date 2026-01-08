@@ -48,26 +48,8 @@ export const ja = {
 	settings_show_ribbon_icon_name: 'リボンアイコンを表示',
 	settings_show_ribbon_icon_desc: '左側のリボンエリアにKindle書籍ノート作成アイコンを表示する（変更後、Obsidianを再起動してください）',
 	settings_sample_template_title: 'サンプルテンプレート',
-	settings_sample_template_placeholders: `
-		<p>使用可能なプレースホルダー:</p>
-		<ul>
-			<li><code>{{title}}</code> - タイトル</li>
-			<li><code>{{authors}}</code> - 著者（YAML配列形式）</li>
-			<li><code>{{published}}</code> - 発売日</li>
-			<li><code>{{series}}</code> - シリーズ</li>
-			<li><code>{{volume}}</code> - 巻数</li>
-			<li><code>{{asin}}</code> - ASIN</li>
-			<li><code>{{isbn10}}</code> - ISBN-10</li>
-			<li><code>{{isbn13}}</code> - ISBN-13</li>
-			<li><code>{{thumbnail}}</code> - サムネイル</li>
-			<li><code>{{thumbnail_display}}</code> - サムネイル（表示形式）</li>
-			<li><code>{{url}}</code> - URL</li>
-			<li><code>{{description}}</code> - 概要（全文）</li>
-			<li><code>{{description_short}}</code> - 概要（短縮）</li>
-			<li><code>{{created}}</code> - 作成日</li>
-		</ul>
-		<p>条件付きブロック: <code>{{#isbn10}}...{{/isbn10}}</code>, <code>{{#isbn13}}...{{/isbn13}}</code></p>
-	`,
+	settings_sample_template_intro: '使用可能なプレースホルダー:',
+	settings_conditional_blocks: '条件付きブロック: {{#isbn10}}...{{/isbn10}}, {{#isbn13}}...{{/isbn13}}',
 	settings_reset_name: 'デフォルトに戻す',
 	settings_reset_desc: '設定をデフォルトに戻します',
 	settings_reset_button: 'リセット',
@@ -112,3 +94,23 @@ URL: {{url}}
 	template_description_heading: '## 概要',
 	template_notes_heading: '## メモ',
 };
+
+/**
+ * Placeholder definitions for settings page
+ */
+export const placeholders_ja = [
+	{ key: '{{title}}', desc: 'タイトル' },
+	{ key: '{{authors}}', desc: '著者（YAML配列形式）' },
+	{ key: '{{published}}', desc: '発売日' },
+	{ key: '{{series}}', desc: 'シリーズ' },
+	{ key: '{{volume}}', desc: '巻数' },
+	{ key: '{{asin}}', desc: 'ASIN' },
+	{ key: '{{isbn10}}', desc: 'ISBN-10' },
+	{ key: '{{isbn13}}', desc: 'ISBN-13' },
+	{ key: '{{thumbnail}}', desc: 'サムネイル' },
+	{ key: '{{thumbnail_display}}', desc: 'サムネイル（表示形式）' },
+	{ key: '{{url}}', desc: 'URL' },
+	{ key: '{{description}}', desc: '概要（全文）' },
+	{ key: '{{description_short}}', desc: '概要（短縮）' },
+	{ key: '{{created}}', desc: '作成日' },
+];

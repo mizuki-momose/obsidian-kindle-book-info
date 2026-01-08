@@ -1,12 +1,17 @@
 import { moment } from 'obsidian';
-import { en, TranslationKey } from './locales/en';
-import { ja } from './locales/ja';
+import { en, TranslationKey, placeholders_en } from './locales/en';
+import { ja, placeholders_ja } from './locales/ja';
 
 type Translations = typeof en;
 
 const translations: Record<string, Translations> = {
 	en,
 	ja,
+};
+
+const placeholders: Record<string, Array<{ key: string, desc: string }>> = {
+	en: placeholders_en,
+	ja: placeholders_ja,
 };
 
 /**
@@ -51,4 +56,12 @@ export function t(key: TranslationKey, params?: Record<string, string>): string 
 export function getTranslations(): Translations {
 	const locale = getCurrentLocale();
 	return translations[locale] || translations.en;
+}
+
+/**
+ * Get placeholders for the settings page
+ */
+export function getPlaceholders(): Array<{ key: string, desc: string }> {
+	const locale = getCurrentLocale();
+	return placeholders[locale] || placeholders.en;
 }
