@@ -1,6 +1,10 @@
 # Obsidian Kindle Book Info
 
+[English](README_EN.md) | 日本語
+
 Kindle/AmazonのURLから書籍情報を取り込み、テンプレートでノートを作成します。短縮URL（a.co）にも対応します。
+
+> **注意**: このプラグインはamazon.co.jpでの動作のみ確認しています。他国のAmazonサイトでの動作は保証されません。
 
 **多言語対応**: プラグインは英語と日本語に対応しています。Obsidianの言語設定に応じて自動的に表示言語が切り替わります。
 
@@ -11,12 +15,6 @@ Kindle/AmazonのURLから書籍情報を取り込み、テンプレートでノ�
 - テンプレートは外部の.mdファイルを読み込み（設定で指定）
 
 ## インストール
-
-### コミュニティプラグインから（推奨）
-1. Obsidianの設定を開く
-2. 「コミュニティプラグイン」→「閲覧」をクリック
-3. "Kindle Book Info" を検索
-4. インストールして有効化
 
 ### 手動インストール
 - GitHubの [Releases](https://github.com/mizuki-momose/obsidian-kindle-book-info/releases) から `main.js`・`manifest.json`・`styles.css` をダウンロード
@@ -108,12 +106,6 @@ pnpm run build
 - `./main.js` - プラグイン本体
 - `./manifest.json` - プラグインマニフェスト
 - `./styles.css` - スタイルシート
-
-### リリース
-新しいバージョンをリリースする方法は [RELEASE_GUIDE.md](RELEASE_GUIDE.md) を参照してください。
-
-### コミュニティプラグイン申請
-Obsidianコミュニティプラグインとして申請する方法は [COMMUNITY_PLUGIN_SUBMISSION.md](COMMUNITY_PLUGIN_SUBMISSION.md) を参照してください。
 
 ## 貢献
 
