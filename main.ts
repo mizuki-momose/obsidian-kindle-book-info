@@ -165,10 +165,12 @@ export default class KindleBookInfoPlugin extends Plugin {
 			}
 		});
 
-		// リボンにアイコンを追加（モバイル用高速アクセス）
-		this.addRibbonIcon('book-open', 'Kindle書籍ノートを作成', () => {
-			this.createBookNote();
-		});
+		// リボンにアイコンを追加（設定で有効な場合のみ）
+		if (this.settings.showRibbonIcon) {
+			this.addRibbonIcon('book-open', 'Kindle書籍ノートを作成', () => {
+				this.createBookNote();
+			});
+		}
 
 		// 設定タブを追加
 		this.addSettingTab(new KindleBookInfoSettingTab(this.app, this));
