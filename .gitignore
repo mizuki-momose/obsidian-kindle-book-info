@@ -26,3 +26,6 @@ yarn-error.log*
 # Optional
 .env
 .env.local
+
+# Test scripts
+test-i18n.js

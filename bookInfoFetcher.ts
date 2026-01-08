@@ -1,6 +1,7 @@
 import { requestUrl } from 'obsidian';
 import * as cheerio from 'cheerio';
 import { BookInfo } from './types';
+import { t } from './i18n';
 
 /**
  * 短縮URLからASINを抽出して正規のAmazon URLを構築
@@ -65,7 +66,7 @@ export async function fetchBookInfo(url: string): Promise<BookInfo> {
 			if (asinFromUrl) {
 				finalUrl = `https://www.amazon.co.jp/dp/${asinFromUrl}`;
 			} else {
-				throw new Error('短縮URLからASINを抽出できませんでした');
+				throw new Error(t('error_asin_extract'));
 			}
 		}
 
@@ -85,7 +86,7 @@ export async function fetchBookInfo(url: string): Promise<BookInfo> {
 
 		// 書籍かどうかを判定
 		if (!isBook($)) {
-			throw new Error('このURLは書籍ではありません。Kindle本または紙書籍の商品ページURLをご使用ください。');
+			throw new Error(t('error_not_book'));
 		}
 
 		// ASINを取得（短縮URLから取得済みの場合はそれを使用、なければURLから抽出）
@@ -97,7 +98,7 @@ export async function fetchBookInfo(url: string): Promise<BookInfo> {
 		}
 
 		if (!asin) {
-			throw new Error('ASINの取得に失敗しました');
+			throw new Error(t('error_asin_failed'));
 		}
 
 		// 統一されたURL形式を使用（常にhttps://www.amazon.co.jp/dp/ASINの形式）
@@ -148,7 +149,7 @@ export async function fetchBookInfo(url: string): Promise<BookInfo> {
 		};
 	} catch (error) {
 		console.error('Book info fetch error:', error);
-		throw new Error(`書籍情報の取得に失敗しました: ${error.message}`);
+		throw new Error(t('error_fetch_failed', { message: error.message }));
 	}
 }
 
@@ -581,7 +582,7 @@ async function fetchIsbnFromPaperback(asin: string): Promise<{ isbn10: string, i
 		
 		return isbns;
 	} catch (error) {
-		console.error('紙の本のページからISBN取得エラー:', error);
+		console.error(t('error_paperback_isbn'), error);
 		return { isbn10: '', isbn13: '' };
 	}
 }

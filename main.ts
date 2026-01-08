@@ -1,8 +1,9 @@
 import { App, Modal, Notice, Plugin, TFile, requestUrl, normalizePath } from 'obsidian';
-import { KindleBookInfoSettings, DEFAULT_SETTINGS, BookInfo, SAMPLE_TEMPLATE } from './types';
+import { KindleBookInfoSettings, DEFAULT_SETTINGS, BookInfo, SAMPLE_TEMPLATE, getSampleTemplate } from './types';
 import { fetchBookInfo } from './bookInfoFetcher';
 import { renderTemplate, renderFilename } from './templateEngine';
 import { KindleBookInfoSettingTab } from './settings';
+import { t } from './i18n';
 
 /**
  * URL入力モーダル
@@ -35,9 +36,9 @@ class UrlInputModal extends Modal {
 		const { contentEl } = this;
 		contentEl.empty();
 		
-		contentEl.createEl('h2', { text: 'Kindle書籍URLを入力' });
+		contentEl.createEl('h2', { text: t('modal_title') });
 		
-		const desc = contentEl.createDiv({ text: 'KindleのURLを入力してください。' });
+		const desc = contentEl.createDiv({ text: t('modal_description') });
 		desc.style.marginBottom = '1.5em';
 		desc.style.fontSize = '0.95em';
 		desc.style.lineHeight = '1.4';
@@ -68,8 +69,8 @@ class UrlInputModal extends Modal {
 					}
 				}
 			} catch (error) {
-				// クリップボード読み取り失敗時は無視
-				console.log('クリップボード読み取り不可:', error);
+				// Failed to read clipboard - ignore silently
+				console.log('Clipboard read error:', error);
 			}
 		}
 		
@@ -81,7 +82,7 @@ class UrlInputModal extends Modal {
 		// iOS/Androidの場合：「クリップボードから検索」ボタンを追加
 		if (isMobile) {
 			const clipboardButton = buttonContainer.createEl('button', {
-				text: 'クリップボードから検索'
+				text: t('modal_clipboard_button')
 			});
 			clipboardButton.style.padding = '12px';
 			clipboardButton.style.fontSize = '16px';
@@ -95,19 +96,19 @@ class UrlInputModal extends Modal {
 							this.close();
 							this.onSubmit(url);
 						} else {
-							new Notice('URLが見つかりません');
+							new Notice(t('notice_no_url'));
 						}
 					} else {
-						new Notice('クリップボードが空です');
+						new Notice(t('notice_clipboard_empty'));
 					}
 				} catch (error) {
-					new Notice('クリップボードの読み取りに失敗しました');
+					new Notice(t('notice_clipboard_failed'));
 				}
 			});
 		}
 		
 		const submitButton = buttonContainer.createEl('button', {
-			text: '検索',
+			text: t('modal_search_button'),
 			cls: 'mod-cta'
 		});
 		submitButton.style.padding = '12px';
@@ -119,7 +120,7 @@ class UrlInputModal extends Modal {
 				this.close();
 				this.onSubmit(text);
 			} else {
-				new Notice('URLを入力してください');
+				new Notice(t('notice_enter_url'));
 			}
 		});
 
@@ -159,7 +160,7 @@ export default class KindleBookInfoPlugin extends Plugin {
 		// コマンドを登録
 		this.addCommand({
 			id: 'create-kindle-book-note',
-			name: 'Kindle書籍ノートを作成',
+			name: t('command_create_note'),
 			callback: () => {
 				this.createBookNote();
 			}
@@ -167,7 +168,7 @@ export default class KindleBookInfoPlugin extends Plugin {
 
 		// リボンにアイコンを追加（設定で有効な場合のみ）
 		if (this.settings.showRibbonIcon) {
-			this.addRibbonIcon('book-open', 'Kindle書籍ノートを作成', () => {
+			this.addRibbonIcon('book-open', t('ribbon_create_note'), () => {
 				this.createBookNote();
 			});
 		}
@@ -190,19 +191,19 @@ export default class KindleBookInfoPlugin extends Plugin {
 	async loadTemplate(): Promise<string> {
 		try {
 			if (!this.settings.templateFilePath || this.settings.templateFilePath.trim() === '') {
-				return SAMPLE_TEMPLATE;
+				return getSampleTemplate();
 			}
 
 			const templatePath = normalizePath(this.settings.templateFilePath);
 			const templateFile = this.app.vault.getAbstractFileByPath(templatePath);
 			
 			if (!templateFile || !(templateFile instanceof TFile)) {
-				return SAMPLE_TEMPLATE;
+				return getSampleTemplate();
 			}
 			
 			return await this.app.vault.read(templateFile);
 		} catch (error) {
-			return SAMPLE_TEMPLATE;
+			return getSampleTemplate();
 		}
 	}
 
@@ -210,17 +211,17 @@ export default class KindleBookInfoPlugin extends Plugin {
 	 * URLから書籍情報を取得してノートを作成（モーダルなし）
 	 */
 	async fetchAndCreateNote(url: string) {
-		const notice = new Notice('書籍情報を取得中...', 0);
+		const notice = new Notice(t('notice_fetching'), 0);
 		
 		try {
 			// 書籍情報を取得（タイムアウト設定：15秒）
 			const bookInfo = await Promise.race([
 				fetchBookInfo(url),
 				new Promise<never>((_, reject) => 
-					setTimeout(() => reject(new Error('通信がタイムアウトしました。接続を確認してからお試しください。')), 15000)
+					setTimeout(() => reject(new Error(t('notice_timeout'))), 15000)
 				)
 			]);
-			notice.setMessage('ノートを作成中...');
+			notice.setMessage(t('notice_creating'));
 			
 			// 画像のダウンロード（オプション）
 			let thumbnailPath = bookInfo.thumbnail;
@@ -258,27 +259,27 @@ export default class KindleBookInfoPlugin extends Plugin {
 			await leaf.openFile(file);
 			
 			notice.hide();
-			new Notice(`✓ ノート「${filename}」を作成しました`);
+			new Notice(t('notice_created', { filename }));
 		} catch (error) {
 			notice.hide();
-			const errorMsg = error?.message || '不明なエラーが発生しました';
-			new Notice(`エラー: ${errorMsg}`);
+			const errorMsg = error?.message || t('error_unknown');
+			new Notice(t('notice_error', { message: errorMsg }));
 		}
 	}
 
 	async createBookNote() {
 		new UrlInputModal(this.app, async (url: string) => {
-			const notice = new Notice('書籍情報を取得中...', 0);
+			const notice = new Notice(t('notice_fetching'), 0);
 			
 			try {
 				// 書籍情報を取得（タイムアウト設定：15秒）
 				const bookInfo = await Promise.race([
 					fetchBookInfo(url),
 					new Promise<never>((_, reject) => 
-						setTimeout(() => reject(new Error('通信がタイムアウトしました。接続を確認してからお試しください。')), 15000)
+						setTimeout(() => reject(new Error(t('notice_timeout'))), 15000)
 					)
 				]);
-				notice.setMessage('ノートを作成中...');
+				notice.setMessage(t('notice_creating'));
 				
 				// 画像のダウンロード（オプション）
 				let thumbnailPath = bookInfo.thumbnail;
@@ -316,11 +317,11 @@ export default class KindleBookInfoPlugin extends Plugin {
 				await leaf.openFile(file);
 				
 				notice.hide();
-				new Notice(`✓ ノート「${filename}」を作成しました`);
+				new Notice(t('notice_created', { filename }));
 			} catch (error) {
 				notice.hide();
-				const errorMsg = error?.message || '不明なエラーが発生しました';
-				new Notice(`エラー: ${errorMsg}`);
+				const errorMsg = error?.message || t('error_unknown');
+				new Notice(t('notice_error', { message: errorMsg }));
 			}
 		}).open();
 	}

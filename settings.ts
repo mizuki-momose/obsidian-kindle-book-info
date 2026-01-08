@@ -1,6 +1,7 @@
 import { App, PluginSettingTab, Setting, TFolder, TFile, AbstractInputSuggest } from 'obsidian';
 import KindleBookInfoPlugin from './main';
-import { SAMPLE_TEMPLATE } from './types';
+import { getSampleTemplate } from './types';
+import { t, getPlaceholders } from './i18n';
 
 /**
  * フォルダサジェスト機能
@@ -114,12 +115,12 @@ export class KindleBookInfoSettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 
-		containerEl.createEl('h2', { text: 'Kindle Book Info Settings' });
+		containerEl.createEl('h2', { text: t('settings_title') });
 
 		// ターゲットフォルダ設定（フォルダサジェスト）
 		new Setting(containerEl)
-			.setName('保存先フォルダ')
-			.setDesc('作成したノートの保存先フォルダ（入力欄をクリックしてリストから選択）')
+			.setName(t('settings_target_folder_name'))
+			.setDesc(t('settings_target_folder_desc'))
 			.addText(text => {
 				text
 					.setPlaceholder('Books')
@@ -136,8 +137,8 @@ export class KindleBookInfoSettingTab extends PluginSettingTab {
 
 		// ファイル名テンプレート設定
 		new Setting(containerEl)
-			.setName('ファイル名テンプレート')
-			.setDesc('ファイル名のテンプレート（使用可能: {{title}}, {{asin}}, {{isbn10}}, {{isbn13}}）')
+			.setName(t('settings_filename_template_name'))
+			.setDesc(t('settings_filename_template_desc'))
 			.addText(text => text
 				.setPlaceholder('{{title}}')
 				.setValue(this.plugin.settings.filenameTemplate)
@@ -148,8 +149,8 @@ export class KindleBookInfoSettingTab extends PluginSettingTab {
 
 		// テンプレートファイルパス設定（ファイルサジェスト）
 		new Setting(containerEl)
-			.setName('テンプレートファイル')
-			.setDesc('ノート作成時に使用するテンプレートファイル（空欄の場合はサンプルテンプレートが使用されます）')
+			.setName(t('settings_template_file_name'))
+			.setDesc(t('settings_template_file_desc'))
 			.addText(text => {
 				text
 					.setPlaceholder('Templates/kindle-book-template.md')
@@ -166,8 +167,8 @@ export class KindleBookInfoSettingTab extends PluginSettingTab {
 
 		// 画像ダウンロード設定
 		new Setting(containerEl)
-			.setName('画像をダウンロード')
-			.setDesc('サムネイル画像をVaultにダウンロードする')
+			.setName(t('settings_download_images_name'))
+			.setDesc(t('settings_download_images_desc'))
 			.addToggle(toggle => toggle
 				.setValue(this.plugin.settings.downloadImages)
 				.onChange(async (value) => {
@@ -177,8 +178,8 @@ export class KindleBookInfoSettingTab extends PluginSettingTab {
 
 		// 画像フォルダ設定（フォルダサジェスト）
 		new Setting(containerEl)
-			.setName('画像保存フォルダ')
-			.setDesc('ダウンロードした画像の保存先フォルダ（入力欄をクリックしてリストから選択）')
+			.setName(t('settings_image_folder_name'))
+			.setDesc(t('settings_image_folder_desc'))
 			.addText(text => {
 				text
 					.setPlaceholder('Assets/BookCovers')
@@ -195,8 +196,8 @@ export class KindleBookInfoSettingTab extends PluginSettingTab {
 
 		// リボンアイコン表示設定
 		new Setting(containerEl)
-			.setName('リボンアイコンを表示')
-			.setDesc('左側のリボンエリアにKindle書籍ノート作成アイコンを表示する（変更後、Obsidianを再起動してください）')
+			.setName(t('settings_show_ribbon_icon_name'))
+			.setDesc(t('settings_show_ribbon_icon_desc'))
 			.addToggle(toggle => toggle
 				.setValue(this.plugin.settings.showRibbonIcon)
 				.onChange(async (value) => {
@@ -205,35 +206,27 @@ export class KindleBookInfoSettingTab extends PluginSettingTab {
 				}));
 
 		// サンプルテンプレートセクション
-		containerEl.createEl('h3', { text: 'サンプルテンプレート' });
+		containerEl.createEl('h3', { text: t('settings_sample_template_title') });
 		
 		const templateDesc = containerEl.createDiv({ cls: 'setting-item-description' });
-		templateDesc.innerHTML = `
-			<p>使用可能なプレースホルダー:</p>
-			<ul>
-				<li><code>{{title}}</code> - タイトル</li>
-				<li><code>{{authors}}</code> - 著者（YAML配列形式）</li>
-				<li><code>{{published}}</code> - 発売日</li>
-				<li><code>{{series}}</code> - シリーズ</li>
-				<li><code>{{volume}}</code> - 巻数</li>
-				<li><code>{{asin}}</code> - ASIN</li>
-				<li><code>{{isbn10}}</code> - ISBN-10</li>
-				<li><code>{{isbn13}}</code> - ISBN-13</li>
-				<li><code>{{thumbnail}}</code> - サムネイル</li>
-				<li><code>{{thumbnail_display}}</code> - サムネイル（表示形式）</li>
-				<li><code>{{url}}</code> - URL</li>
-				<li><code>{{description}}</code> - 概要（全文）</li>
-				<li><code>{{description_short}}</code> - 概要（短縮）</li>
-				<li><code>{{created}}</code> - 作成日</li>
-			</ul>
-			<p>条件付きブロック: <code>{{#isbn10}}...{{/isbn10}}</code>, <code>{{#isbn13}}...{{/isbn13}}</code></p>
-		`;
+		
+		// Build the placeholders description using DOM manipulation
+		templateDesc.createEl('p', { text: t('settings_sample_template_intro') });
+		
+		const ul = templateDesc.createEl('ul');
+		getPlaceholders().forEach((placeholder) => {
+			const li = ul.createEl('li');
+			li.createEl('code', { text: placeholder.key });
+			li.appendText(' - ' + placeholder.desc);
+		});
+		
+		templateDesc.createEl('p', { text: t('settings_conditional_blocks') });
 
 		new Setting(containerEl)
-			.setName('サンプルテンプレート')
+			.setName(t('settings_sample_template_title'))
 			.addTextArea(text => {
 				text
-					.setValue(SAMPLE_TEMPLATE)
+					.setValue(getSampleTemplate())
 					.setDisabled(true);
 				text.inputEl.rows = 15;
 				text.inputEl.style.width = '100%';
@@ -243,10 +236,10 @@ export class KindleBookInfoSettingTab extends PluginSettingTab {
 
 		// デフォルトに戻すボタン
 		new Setting(containerEl)
-			.setName('デフォルトに戻す')
-			.setDesc('設定をデフォルトに戻します')
+			.setName(t('settings_reset_name'))
+			.setDesc(t('settings_reset_desc'))
 			.addButton(button => button
-				.setButtonText('リセット')
+				.setButtonText(t('settings_reset_button'))
 				.onClick(async () => {
 					const { DEFAULT_SETTINGS } = await import('./types');
 					this.plugin.settings.templateFilePath = DEFAULT_SETTINGS.templateFilePath;

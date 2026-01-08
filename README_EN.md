@@ -6,6 +6,8 @@ Fetch book information from Kindle/Amazon URLs and create notes with templates. 
 
 > **Note**: This plugin has only been tested with amazon.co.jp. Operation with Amazon sites from other countries is not guaranteed.
 
+> **Multilingual Support**: The plugin supports both English and Japanese. The display language switches automatically according to Obsidian's language settings.
+
 ## Features
 - Automatically create book notes by simply entering a URL
 - Save essential information in Frontmatter (title/author/release date/ASIN/ISBN/URL, etc.)
