@@ -44,12 +44,13 @@ export interface KindleBookInfoSettings {
 	showRibbonIcon: boolean;
 }
 
+import { getTranslations } from './i18n';
+
 /**
  * サンプルテンプレートを取得
  * Get sample template based on current locale
  */
 export function getSampleTemplate(): string {
-	const { getTranslations } = require('./i18n');
 	const translations = getTranslations();
 	return translations.sample_template;
 }
