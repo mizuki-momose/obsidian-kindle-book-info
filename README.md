@@ -9,7 +9,15 @@ Kindle/AmazonのURLから書籍情報を取り込み、テンプレートでノ�
 - テンプレートは外部の.mdファイルを読み込み（設定で指定）
 
 ## インストール
-- GitHubのReleasesから `main.js`・`manifest.json`・`styles.css` をダウンロード
+
+### コミュニティプラグインから（推奨）
+1. Obsidianの設定を開く
+2. 「コミュニティプラグイン」→「閲覧」をクリック
+3. "Kindle Book Info" を検索
+4. インストールして有効化
+
+### 手動インストール
+- GitHubの [Releases](https://github.com/mizuki-momose/obsidian-kindle-book-info/releases) から `main.js`・`manifest.json`・`styles.css` をダウンロード
 - Vaultの `.obsidian/plugins/obsidian-kindle-book-info/` に配置してObsidianを再起動
 
 ## 使い方
