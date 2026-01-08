@@ -45,29 +45,40 @@ export interface KindleBookInfoSettings {
 }
 
 /**
- * サンプルテンプレート
+ * サンプルテンプレートを取得
+ * Get sample template based on current locale
+ */
+export function getSampleTemplate(): string {
+	const { getTranslations } = require('./i18n');
+	const translations = getTranslations();
+	return translations.sample_template;
+}
+
+/**
+ * サンプルテンプレート（デフォルト：英語）
+ * Sample template (default: English)
  */
 export const SAMPLE_TEMPLATE = `---
-タイトル: {{title}}
-著者: {{authors}}
-発売日: {{published}}
-シリーズ: {{series}}
-巻数: {{volume}}
+Title: {{title}}
+Authors: {{authors}}
+Published: {{published}}
+Series: {{series}}
+Volume: {{volume}}
 ASIN: {{asin}}
 ISBN-10: {{isbn10}}
 ISBN-13: {{isbn13}}
-サムネイル: {{thumbnail}}
+Thumbnail: {{thumbnail}}
 URL: {{url}}
-概要: {{description_short}}
-作成日: {{created}}
+Description: {{description_short}}
+Created: {{created}}
 ---
 
 {{thumbnail_display}}
 
-## 概要
+## Description
 {{description}}
 
-## メモ
+## Notes
 `;
 
 /**
