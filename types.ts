@@ -1,3 +1,5 @@
+import { getTranslations } from './i18n';
+
 /**
  * 書籍情報の型定義
  */
@@ -43,8 +45,6 @@ export interface KindleBookInfoSettings {
 	/** リボンアイコンを表示するかどうか */
 	showRibbonIcon: boolean;
 }
-
-import { getTranslations } from './i18n';
 
 /**
  * サンプルテンプレートを取得

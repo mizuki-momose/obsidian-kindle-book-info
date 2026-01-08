@@ -69,7 +69,7 @@ class UrlInputModal extends Modal {
 					}
 				}
 			} catch (error) {
-				// クリップボード読み取り失敗時は無視
+				// Failed to read clipboard - ignore silently
 				console.log('Clipboard read error:', error);
 			}
 		}
