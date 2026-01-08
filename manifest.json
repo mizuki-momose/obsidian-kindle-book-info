@@ -1,9 +1,9 @@
 {
-	"id": "obsidian-kindle-book-info",
+	"id": "kindle-book-info",
 	"name": "Kindle Book Info",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "Fetch Kindle book information from share URLs and create notes with templates",
+	"description": "Fetch Kindle book information from share URLs and create notes with templates.",
 	"author": "mizuki-momose",
 	"authorUrl": "https://github.com/mizuki-momose",
 	"fundingUrl": "",
