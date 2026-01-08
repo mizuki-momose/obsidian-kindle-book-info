@@ -95,8 +95,9 @@ export function sanitizeFilename(filename: string): string {
 export function renderFilename(template: string, data: BookInfo): string {
 	let filename = template;
 	filename = filename.replace(/\{\{title\}\}/g, data.title);
-	filename = filename.replace(/\{\{authors\}\}/g, data.authors.join(', '));
 	filename = filename.replace(/\{\{asin\}\}/g, data.asin);
+	filename = filename.replace(/\{\{isbn10\}\}/g, data.isbn10 || '');
+	filename = filename.replace(/\{\{isbn13\}\}/g, data.isbn13 || '');
 	
 	return sanitizeFilename(filename);
 }
