@@ -87,24 +87,25 @@ class UrlInputModal extends Modal {
 				cls: 'kindle-book-info-button'
 			});
 			
-			// eslint-disable-next-line @typescript-eslint/no-misused-promises
-			clipboardButton.addEventListener('click', async () => {
-				try {
-					const clipboardText = await navigator.clipboard.readText();
-					if (clipboardText && clipboardText.trim()) {
-						const url = this.extractUrl(clipboardText);
-						if (url) {
-							this.close();
-							this.onSubmit(url);
+			clipboardButton.addEventListener('click', () => {
+				void (async () => {
+					try {
+						const clipboardText = await navigator.clipboard.readText();
+						if (clipboardText && clipboardText.trim()) {
+							const url = this.extractUrl(clipboardText);
+							if (url) {
+								this.close();
+								this.onSubmit(url);
+							} else {
+								new Notice(t('notice_no_url'));
+							}
 						} else {
-							new Notice(t('notice_no_url'));
+							new Notice(t('notice_clipboard_empty'));
 						}
-					} else {
-						new Notice(t('notice_clipboard_empty'));
+					} catch {
+						new Notice(t('notice_clipboard_failed'));
 					}
-				} catch {
-					new Notice(t('notice_clipboard_failed'));
-				}
+				})();
 			});
 		}
 		
@@ -249,7 +250,7 @@ export default class KindleBookInfoPlugin extends Plugin {
 			const filePath = normalizePath(`${folderPath}/${filename}.md`);
 			
 			// ファイルが既に存在する場合は番号を付ける
-			const finalPath = await this.getUniqueFilePath(filePath);
+			const finalPath = this.getUniqueFilePath(filePath);
 			
 			// ファイルを作成
 			const file = await this.app.vault.create(finalPath, content);
@@ -267,63 +268,64 @@ export default class KindleBookInfoPlugin extends Plugin {
 		}
 	}
 
-	async createBookNote() {
-		// eslint-disable-next-line @typescript-eslint/no-misused-promises
-		new UrlInputModal(this.app, async (url: string) => {
-			const notice = new Notice(t('notice_fetching'), 0);
-			
-			try {
-				// 書籍情報を取得（タイムアウト設定：15秒）
-				const bookInfo = await Promise.race([
-					fetchBookInfo(url),
-					new Promise<never>((_, reject) => 
-						setTimeout(() => reject(new Error(t('notice_timeout'))), 15000)
-					)
-				]);
-				notice.setMessage(t('notice_creating'));
+	createBookNote(): void {
+		new UrlInputModal(this.app, (url: string) => {
+			void (async () => {
+				const notice = new Notice(t('notice_fetching'), 0);
 				
-				// 画像のダウンロード（オプション）
-				let thumbnailPath = bookInfo.thumbnail;
-				if (this.settings.downloadImages && bookInfo.thumbnail) {
-					thumbnailPath = await this.downloadImage(bookInfo);
+				try {
+					// 書籍情報を取得（タイムアウト設定：15秒）
+					const bookInfo = await Promise.race([
+						fetchBookInfo(url),
+						new Promise<never>((_, reject) => 
+							setTimeout(() => reject(new Error(t('notice_timeout'))), 15000)
+						)
+					]);
+					notice.setMessage(t('notice_creating'));
+					
+					// 画像のダウンロード（オプション）
+					let thumbnailPath = bookInfo.thumbnail;
+					if (this.settings.downloadImages && bookInfo.thumbnail) {
+						thumbnailPath = await this.downloadImage(bookInfo);
+					}
+					
+					// テンプレートを読み込む
+					const template = await this.loadTemplate();
+					
+					// テンプレートをレンダリング
+					const bookInfoWithLocalThumbnail = {
+						...bookInfo,
+						thumbnail: thumbnailPath
+					};
+					const content = renderTemplate(template, bookInfoWithLocalThumbnail);
+					
+					// ファイル名を生成
+					const filename = renderFilename(this.settings.filenameTemplate, bookInfo);
+					
+					// ファイルパスを作成
+					const folderPath = this.settings.targetFolder;
+					await this.ensureFolderExists(folderPath);
+					
+					const filePath = normalizePath(`${folderPath}/${filename}.md`);
+					
+					// ファイルが既に存在する場合は番号を付ける
+					const finalPath = this.getUniqueFilePath(filePath);
+					
+					// ファイルを作成
+					const file = await this.app.vault.create(finalPath, content);
+					
+					// 作成したファイルを開く
+					const leaf = this.app.workspace.getLeaf();
+					await leaf.openFile(file);
+					
+					notice.hide();
+					new Notice(t('notice_created', { filename }));
+				} catch (err: unknown) {
+					notice.hide();
+					const errorMsg = err instanceof Error ? err.message : t('error_unknown');
+					new Notice(t('notice_error', { message: errorMsg }));
 				}
-				
-				// テンプレートを読み込む
-				const template = await this.loadTemplate();
-				
-				// テンプレートをレンダリング
-				const bookInfoWithLocalThumbnail = {
-					...bookInfo,
-					thumbnail: thumbnailPath
-				};
-				const content = renderTemplate(template, bookInfoWithLocalThumbnail);
-				
-				// ファイル名を生成
-				const filename = renderFilename(this.settings.filenameTemplate, bookInfo);
-				
-				// ファイルパスを作成
-				const folderPath = this.settings.targetFolder;
-				await this.ensureFolderExists(folderPath);
-				
-				const filePath = normalizePath(`${folderPath}/${filename}.md`);
-				
-				// ファイルが既に存在する場合は番号を付ける
-				const finalPath = await this.getUniqueFilePath(filePath);
-				
-				// ファイルを作成
-				const file = await this.app.vault.create(finalPath, content);
-				
-				// 作成したファイルを開く
-				const leaf = this.app.workspace.getLeaf();
-				await leaf.openFile(file);
-				
-				notice.hide();
-				new Notice(t('notice_created', { filename }));
-			} catch (err: unknown) {
-				notice.hide();
-				const errorMsg = err instanceof Error ? err.message : t('error_unknown');
-				new Notice(t('notice_error', { message: errorMsg }));
-			}
+			})();
 		}).open();
 	}
 
@@ -342,7 +344,7 @@ export default class KindleBookInfoPlugin extends Plugin {
 	/**
 	 * 重複しないファイルパスを取得
 	 */
-	async getUniqueFilePath(filePath: string): Promise<string> {
+	getUniqueFilePath(filePath: string): string {
 		let path = filePath;
 		let counter = 1;
 		
