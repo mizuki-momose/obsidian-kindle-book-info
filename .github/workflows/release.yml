@@ -38,6 +38,17 @@ jobs:
         run: |
           tag="${GITHUB_REF#refs/tags/}"
           gren release --tags="$tag" --override
+          gren changelog
+
+      - name: Commit CHANGELOG.md
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git checkout main
+          git add CHANGELOG.md
+          git diff --cached --quiet || git commit -m "docs: update CHANGELOG.md for ${{ github.ref_name }}"
+          git push
 
       - name: Upload release assets
         env:

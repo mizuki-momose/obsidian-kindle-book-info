@@ -1,6 +1,6 @@
 {
   "name": "obsidian-kindle-book-info",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Obsidian plugin to fetch Kindle book information from share URLs and create notes",
   "main": "main.js",
   "scripts": {
