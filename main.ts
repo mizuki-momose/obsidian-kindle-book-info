@@ -1,5 +1,5 @@
 import { App, Modal, Notice, Plugin, TFile, requestUrl, normalizePath } from 'obsidian';
-import { KindleBookInfoSettings, DEFAULT_SETTINGS, BookInfo, SAMPLE_TEMPLATE, getSampleTemplate } from './types';
+import { KindleBookInfoSettings, DEFAULT_SETTINGS, BookInfo, getSampleTemplate } from './types';
 import { fetchBookInfo } from './bookInfoFetcher';
 import { renderTemplate, renderFilename } from './templateEngine';
 import { KindleBookInfoSettingTab } from './settings';
@@ -38,25 +38,26 @@ class UrlInputModal extends Modal {
 		
 		contentEl.createEl('h2', { text: t('modal_title') });
 		
-		const desc = contentEl.createDiv({ text: t('modal_description') });
-		desc.style.marginBottom = '1.5em';
-		desc.style.fontSize = '0.95em';
-		desc.style.lineHeight = '1.4';
+		void contentEl.createDiv({ 
+			text: t('modal_description'),
+			cls: 'kindle-book-info-modal-desc'
+		});
 		
 		// テキスト入力欄
-		const inputContainer = contentEl.createDiv();
-		inputContainer.style.marginBottom = '1em';
+		const inputContainer = contentEl.createDiv({
+			cls: 'kindle-book-info-input-container'
+		});
 
 		const inputEl = inputContainer.createEl('input', {
-			type: 'text'
+			type: 'text',
+			cls: 'kindle-book-info-input'
 		});
-		inputEl.style.width = '100%';
-		inputEl.style.padding = '10px';
-		inputEl.style.fontSize = '16px';
-		inputEl.style.boxSizing = 'border-box';
 		
 		// プラットフォーム判定
-		const isMobile = (this.app as any).isMobile;
+		interface AppWithMobile extends App {
+			isMobile: boolean;
+		}
+		const isMobile = (this.app as AppWithMobile).isMobile;
 		
 		// Mac/Windowsの場合：クリップボードから自動入力
 		if (!isMobile) {
@@ -68,25 +69,25 @@ class UrlInputModal extends Modal {
 						inputEl.value = url;
 					}
 				}
-			} catch (error) {
+			} catch (error: unknown) {
 				// Failed to read clipboard - ignore silently
-				console.log('Clipboard read error:', error);
+				const errorMsg = error instanceof Error ? error.message : String(error);
+				console.warn('Clipboard read error:', errorMsg);
 			}
 		}
 		
-		const buttonContainer = contentEl.createDiv();
-		buttonContainer.style.display = 'flex';
-		buttonContainer.style.gap = '0.5em';
-		buttonContainer.style.flexDirection = 'column';
+		const buttonContainer = contentEl.createDiv({
+			cls: 'kindle-book-info-button-container'
+		});
 		
 		// iOS/Androidの場合：「クリップボードから検索」ボタンを追加
 		if (isMobile) {
 			const clipboardButton = buttonContainer.createEl('button', {
-				text: t('modal_clipboard_button')
+				text: t('modal_clipboard_button'),
+				cls: 'kindle-book-info-button'
 			});
-			clipboardButton.style.padding = '12px';
-			clipboardButton.style.fontSize = '16px';
 			
+			// eslint-disable-next-line @typescript-eslint/no-misused-promises
 			clipboardButton.addEventListener('click', async () => {
 				try {
 					const clipboardText = await navigator.clipboard.readText();
@@ -101,7 +102,7 @@ class UrlInputModal extends Modal {
 					} else {
 						new Notice(t('notice_clipboard_empty'));
 					}
-				} catch (error) {
+				} catch {
 					new Notice(t('notice_clipboard_failed'));
 				}
 			});
@@ -109,10 +110,8 @@ class UrlInputModal extends Modal {
 		
 		const submitButton = buttonContainer.createEl('button', {
 			text: t('modal_search_button'),
-			cls: 'mod-cta'
+			cls: 'mod-cta kindle-book-info-button'
 		});
-		submitButton.style.padding = '12px';
-		submitButton.style.fontSize = '16px';
 		
 		submitButton.addEventListener('click', () => {
 			const text = inputEl.value.trim();
@@ -140,7 +139,7 @@ class UrlInputModal extends Modal {
  * メインプラグインクラス
  */
 export default class KindleBookInfoPlugin extends Plugin {
-	settings: KindleBookInfoSettings;
+	settings: KindleBookInfoSettings = DEFAULT_SETTINGS;
 
 	async onload() {
 		await this.loadSettings();
@@ -153,7 +152,7 @@ export default class KindleBookInfoPlugin extends Plugin {
 				await this.fetchAndCreateNote(url);
 			} else {
 				// URLがない場合は通常のモーダルを開く
-				this.createBookNote();
+				void this.createBookNote();
 			}
 		});
 
@@ -162,14 +161,14 @@ export default class KindleBookInfoPlugin extends Plugin {
 			id: 'create-kindle-book-note',
 			name: t('command_create_note'),
 			callback: () => {
-				this.createBookNote();
+				void this.createBookNote();
 			}
 		});
 
 		// リボンにアイコンを追加（設定で有効な場合のみ）
 		if (this.settings.showRibbonIcon) {
 			this.addRibbonIcon('book-open', t('ribbon_create_note'), () => {
-				this.createBookNote();
+				void this.createBookNote();
 			});
 		}
 
@@ -178,7 +177,8 @@ export default class KindleBookInfoPlugin extends Plugin {
 	}
 
 	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+		const data = await this.loadData() as Partial<KindleBookInfoSettings> | null;
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, data ?? {});
 	}
 
 	async saveSettings() {
@@ -202,7 +202,7 @@ export default class KindleBookInfoPlugin extends Plugin {
 			}
 			
 			return await this.app.vault.read(templateFile);
-		} catch (error) {
+		} catch {
 			return getSampleTemplate();
 		}
 	}
@@ -260,14 +260,15 @@ export default class KindleBookInfoPlugin extends Plugin {
 			
 			notice.hide();
 			new Notice(t('notice_created', { filename }));
-		} catch (error) {
+		} catch (err: unknown) {
 			notice.hide();
-			const errorMsg = error?.message || t('error_unknown');
+			const errorMsg = err instanceof Error ? err.message : t('error_unknown');
 			new Notice(t('notice_error', { message: errorMsg }));
 		}
 	}
 
 	async createBookNote() {
+		// eslint-disable-next-line @typescript-eslint/no-misused-promises
 		new UrlInputModal(this.app, async (url: string) => {
 			const notice = new Notice(t('notice_fetching'), 0);
 			
@@ -318,9 +319,9 @@ export default class KindleBookInfoPlugin extends Plugin {
 				
 				notice.hide();
 				new Notice(t('notice_created', { filename }));
-			} catch (error) {
+			} catch (err: unknown) {
 				notice.hide();
-				const errorMsg = error?.message || t('error_unknown');
+				const errorMsg = err instanceof Error ? err.message : t('error_unknown');
 				new Notice(t('notice_error', { message: errorMsg }));
 			}
 		}).open();
@@ -393,8 +394,9 @@ export default class KindleBookInfoPlugin extends Plugin {
 			await this.app.vault.createBinary(imagePath, response.arrayBuffer);
 			
 			return filename;
-		} catch (error) {
-			console.warn('Image download warning:', error?.message);
+		} catch (err: unknown) {
+			const errorMsg = err instanceof Error ? err.message : String(err);
+			console.warn('Image download warning:', errorMsg);
 			return bookInfo.thumbnail;
 		}
 	}

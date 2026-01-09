@@ -60,7 +60,7 @@ export function renderTemplate(template: string, data: BookInfo): string {
 	
 	// 条件付きブロック {{#isbn10}}...{{/isbn10}}
 	if (data.isbn10) {
-		result = result.replace(/\{\{#isbn10\}\}([\s\S]*?)\{\{\/isbn10\}\}/g, (_, content) => {
+		result = result.replace(/\{\{#isbn10\}\}([\s\S]*?)\{\{\/isbn10\}\}/g, (_match: string, content: string) => {
 			return content.replace(/\{\{isbn10\}\}/g, data.isbn10);
 		});
 	} else {
@@ -69,7 +69,7 @@ export function renderTemplate(template: string, data: BookInfo): string {
 	
 	// 条件付きブロック {{#isbn13}}...{{/isbn13}}
 	if (data.isbn13) {
-		result = result.replace(/\{\{#isbn13\}\}([\s\S]*?)\{\{\/isbn13\}\}/g, (_, content) => {
+		result = result.replace(/\{\{#isbn13\}\}([\s\S]*?)\{\{\/isbn13\}\}/g, (_match: string, content: string) => {
 			return content.replace(/\{\{isbn13\}\}/g, data.isbn13);
 		});
 	} else {
