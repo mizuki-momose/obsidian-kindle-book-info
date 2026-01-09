@@ -38,7 +38,19 @@ jobs:
         run: |
           tag="${GITHUB_REF#refs/tags/}"
           gren release --tags="$tag" --override
-          gren changelog
+
+      - name: Upload release assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tag="${GITHUB_REF#refs/tags/}"
+          gh release upload "$tag" main.js manifest.json styles.css
+
+      - name: Generate changelog
+        env:
+          GREN_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gren changelog --override
 
       - name: Commit CHANGELOG.md
         run: |
@@ -50,9 +62,3 @@ jobs:
           git diff --cached --quiet || git commit -m "docs: update CHANGELOG.md for ${{ github.ref_name }}"
           git push
 
-      - name: Upload release assets
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          tag="${GITHUB_REF#refs/tags/}"
-          gh release upload "$tag" main.js manifest.json styles.css
