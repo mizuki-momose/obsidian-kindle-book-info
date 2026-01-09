@@ -5,3 +5,32 @@
 	justify-content: flex-end;
 	gap: 0.5em;
 }
+
+/* Kindle Book Info Modal スタイル */
+.kindle-book-info-modal-desc {
+	margin-bottom: 1.5em;
+	font-size: 0.95em;
+	line-height: 1.4;
+}
+
+.kindle-book-info-input-container {
+	margin-bottom: 1em;
+}
+
+.kindle-book-info-input {
+	width: 100%;
+	padding: 10px;
+	font-size: 16px;
+	box-sizing: border-box;
+}
+
+.kindle-book-info-button-container {
+	display: flex;
+	gap: 0.5em;
+	flex-direction: column;
+}
+
+.kindle-book-info-button {
+	padding: 12px;
+	font-size: 16px;
+}

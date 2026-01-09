@@ -44,7 +44,7 @@ class FolderSuggest extends AbstractInputSuggest<TFolder> {
 		el.setText(folder.path);
 	}
 
-	selectSuggestion(folder: TFolder, evt: MouseEvent | KeyboardEvent): void {
+	selectSuggestion(folder: TFolder, _evt: MouseEvent | KeyboardEvent): void {
 		this.inputElement.value = folder.path;
 		this.inputElement.dispatchEvent(new Event('input', { bubbles: true }));
 		this.close();
@@ -93,7 +93,7 @@ class FileSuggest extends AbstractInputSuggest<TFile> {
 		el.setText(file.path);
 	}
 
-	selectSuggestion(file: TFile, evt: MouseEvent | KeyboardEvent): void {
+	selectSuggestion(file: TFile, _evt: MouseEvent | KeyboardEvent): void {
 		this.inputElement.value = file.path;
 		this.inputElement.dispatchEvent(new Event('input', { bubbles: true }));
 		this.close();
@@ -115,7 +115,7 @@ export class KindleBookInfoSettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 
-		containerEl.createEl('h2', { text: t('settings_title') });
+		new Setting(containerEl).setName("").setHeading();
 
 		// ターゲットフォルダ設定（フォルダサジェスト）
 		new Setting(containerEl)
@@ -182,7 +182,6 @@ export class KindleBookInfoSettingTab extends PluginSettingTab {
 			.setDesc(t('settings_image_folder_desc'))
 			.addText(text => {
 				text
-					.setPlaceholder('Assets/BookCovers')
 					.setValue(this.plugin.settings.imageFolder)
 					.onChange(async (value) => {
 						this.plugin.settings.imageFolder = value;
@@ -206,7 +205,7 @@ export class KindleBookInfoSettingTab extends PluginSettingTab {
 				}));
 
 		// サンプルテンプレートセクション
-		containerEl.createEl('h3', { text: t('settings_sample_template_title') });
+		new Setting(containerEl).setName("").setHeading();
 		
 		const templateDesc = containerEl.createDiv({ cls: 'setting-item-description' });
 		
@@ -229,8 +228,10 @@ export class KindleBookInfoSettingTab extends PluginSettingTab {
 					.setValue(getSampleTemplate())
 					.setDisabled(true);
 				text.inputEl.rows = 15;
-				text.inputEl.style.width = '100%';
-				text.inputEl.style.fontFamily = 'monospace';
+				text.inputEl.setCssProps({
+					width: '100%',
+					fontFamily: 'monospace'
+				});
 				return text;
 			});
 

@@ -46,8 +46,9 @@ export async function resolveAsinFromShortUrl(url: string): Promise<string | nul
 
 		console.warn('Could not extract ASIN from short URL');
 		return null;
-	} catch (error) {
-		console.error('Short URL resolution error:', error);
+	} catch (error: unknown) {
+		const errorMsg = error instanceof Error ? error.message : String(error);
+		console.error('Short URL resolution error:', errorMsg);
 		return null;
 	}
 }
@@ -127,30 +128,30 @@ export async function fetchBookInfo(url: string): Promise<BookInfo> {
 			const paperbackAsin = extractPaperbackAsin($);
 			if (paperbackAsin) {
 				isbnData = await fetchIsbnFromPaperback(paperbackAsin);
-			} else {
 			}
 		}
 
-		// シリーズ情報を取得
-		const { series, volume } = extractSeries($);
+	// シリーズ情報を取得
+	const { series, volume } = extractSeries($);
 
-		return {
-			title,
-			authors,
-			description,
-			published,
-			asin,
-			isbn10: isbnData.isbn10,
-			isbn13: isbnData.isbn13,
-			thumbnail,
-			url: standardizedUrl,
-			series,
-			volume
-		};
-	} catch (error) {
-		console.error('Book info fetch error:', error);
-		throw new Error(t('error_fetch_failed', { message: error.message }));
-	}
+	return {
+		title,
+		authors,
+		description,
+		published,
+		asin,
+		isbn10: isbnData.isbn10,
+		isbn13: isbnData.isbn13,
+		thumbnail,
+		url: standardizedUrl,
+		series,
+		volume
+	};
+} catch (error) {
+	const errorMessage = error instanceof Error ? error.message : String(error);
+	console.error('Book info fetch error:', error);
+	throw new Error(t('error_fetch_failed', { message: errorMessage }));
+}
 }
 
 /**
@@ -162,7 +163,9 @@ function isBook($: cheerio.CheerioAPI): boolean {
 	let hasBookSchema = false;
 	jsonLdScripts.each((_, elem) => {
 		try {
-			const jsonData = JSON.parse($(elem).html() || '{}');
+			const htmlContent = $(elem).html();
+			if (!htmlContent) return;
+			const jsonData = JSON.parse(htmlContent) as { '@type'?: string | string[] };
 			if (jsonData['@type'] === 'Book' || 
 			    (Array.isArray(jsonData['@type']) && jsonData['@type'].includes('Book'))) {
 				hasBookSchema = true;
@@ -213,7 +216,7 @@ function extractAsin(url: string): string | null {
 		if (asinParam && /^[A-Z0-9]{10}$/i.test(asinParam)) {
 			return asinParam;
 		}
-	} catch (e) {
+	} catch {
 		// URL解析失敗時は無視
 	}
 
@@ -244,13 +247,13 @@ function extractAsinFromHtml($: cheerio.CheerioAPI): string | null {
 	const scripts = $('script[type="application/ld+json"]');
 	for (let i = 0; i < scripts.length; i++) {
 		try {
-			const jsonData = JSON.parse($(scripts[i]).text());
+			const jsonData = JSON.parse($(scripts[i]).text()) as { productID?: string };
 			if (jsonData.productID) {
 				// productIDからASINを取得（ASIN:xxxxx形式）
 				const asinMatch = jsonData.productID.match(/ASIN:([A-Z0-9]{10})/);
 				if (asinMatch) return asinMatch[1];
 			}
-		} catch (e) {
+		} catch {
 			// JSONパースエラーは無視
 		}
 	}
@@ -272,19 +275,21 @@ function extractAsinFromHtml($: cheerio.CheerioAPI): string | null {
  */
 function extractTitle($: cheerio.CheerioAPI): string {
 	// OGタグから取得
-	let title = $('meta[property="og:title"]').attr('content');
+	let title: string | undefined = $('meta[property="og:title"]').attr('content');
 	
 	// productTitleから取得
 	if (!title) {
-		title = $('#productTitle').text().trim();
+		const productTitle = $('#productTitle').text().trim();
+		if (productTitle) title = productTitle;
 	}
 	
 	// ebooksProductTitleから取得
 	if (!title) {
-		title = $('#ebooksProductTitle').text().trim();
+		const ebooksTitle = $('#ebooksProductTitle').text().trim();
+		if (ebooksTitle) title = ebooksTitle;
 	}
 	
-	return title || 'Unknown Title';
+	return title ?? 'Unknown Title';
 }
 
 /**
@@ -319,16 +324,18 @@ function extractAuthors($: cheerio.CheerioAPI): string[] {
  */
 function extractDescription($: cheerio.CheerioAPI): string {
 	// OGタグから取得
-	let description = $('meta[property="og:description"]').attr('content');
+	let description: string | undefined = $('meta[property="og:description"]').attr('content');
 	
 	// book descriptionから取得
 	if (!description) {
-		description = $('#bookDescription_feature_div noscript').text().trim();
+		const noscriptDesc = $('#bookDescription_feature_div noscript').text().trim();
+		if (noscriptDesc) description = noscriptDesc;
 	}
 	
 	// iframe内のdescriptionを取得
 	if (!description) {
-		description = $('#bookDescription_feature_div').text().trim();
+		const divDesc = $('#bookDescription_feature_div').text().trim();
+		if (divDesc) description = divDesc;
 	}
 	
 	// meta descriptionから取得
@@ -336,7 +343,7 @@ function extractDescription($: cheerio.CheerioAPI): string {
 		description = $('meta[name="description"]').attr('content');
 	}
 	
-	return description || '';
+	return description ?? '';
 }
 
 /**
@@ -349,7 +356,7 @@ function extractPublishDate($: cheerio.CheerioAPI): string {
 	$('#detailBullets_feature_div li').each((_, elem) => {
 		const text = $(elem).text();
 		if (text.includes('出版社') || text.includes('Publisher')) {
-			const match = text.match(/(\d{4})[年\/](\d{1,2})[月\/](\d{1,2})/);
+			const match = text.match(/(\d{4})[年/](\d{1,2})[月/](\d{1,2})/);
 			if (match) {
 				date = `${match[1]}-${match[2].padStart(2, '0')}-${match[3].padStart(2, '0')}`;
 			}
@@ -361,7 +368,7 @@ function extractPublishDate($: cheerio.CheerioAPI): string {
 		$('.detail-bullet-list span.a-list-item').each((_, elem) => {
 			const text = $(elem).text();
 			if (text.includes('出版社') || text.includes('Publisher')) {
-				const match = text.match(/(\d{4})[年\/](\d{1,2})[月\/](\d{1,2})/);
+				const match = text.match(/(\d{4})[年/](\d{1,2})[月/](\d{1,2})/);
 				if (match) {
 					date = `${match[1]}-${match[2].padStart(2, '0')}-${match[3].padStart(2, '0')}`;
 				}
@@ -377,7 +384,7 @@ function extractPublishDate($: cheerio.CheerioAPI): string {
  */
 function extractThumbnail($: cheerio.CheerioAPI): string {
 	// OGイメージから取得
-	let thumbnail = $('meta[property="og:image"]').attr('content');
+	let thumbnail: string | undefined = $('meta[property="og:image"]').attr('content');
 	
 	// landingImageから取得
 	if (!thumbnail) {
@@ -394,7 +401,7 @@ function extractThumbnail($: cheerio.CheerioAPI): string {
 		thumbnail = $('#imgBlkFront img').attr('src');
 	}
 	
-	return thumbnail || '';
+	return thumbnail ?? '';
 }
 
 /**
@@ -405,7 +412,6 @@ function extractIsbn($: cheerio.CheerioAPI): { isbn10: string, isbn13: string } 
 	let isbn13 = '';
 
 	// #detailBullets_feature_div から探す
-	const detailBullets = $('#detailBullets_feature_div li');
 	
 	$('#detailBullets_feature_div li').each((_, elem) => {
 		// 制御文字を含むすべての不可視文字を削除し、複数の空白を1つに
@@ -415,12 +421,12 @@ function extractIsbn($: cheerio.CheerioAPI): { isbn10: string, isbn13: string } 
 			.trim();
 		
 		if (text.includes('ISBN-13') && !isbn13) {
-			const match = text.match(/ISBN-13\s*[:：]\s*([0-9\-]+)/);
+			const match = text.match(/ISBN-13\s*[:：]\s*([0-9-]+)/);
 			if (match) {
 				isbn13 = match[1].replace(/-/g, '');
 			}
 		} else if (text.includes('ISBN-10') && !isbn10) {
-			const match = text.match(/ISBN-10\s*[:：]\s*([0-9\-]+)/);
+			const match = text.match(/ISBN-10\s*[:：]\s*([0-9-]+)/);
 			if (match) {
 				isbn10 = match[1].replace(/-/g, '');
 			}
@@ -429,7 +435,6 @@ function extractIsbn($: cheerio.CheerioAPI): { isbn10: string, isbn13: string } 
 	
 	// 製品の詳細から取得
 	if (!isbn10 && !isbn13) {
-		const detailBulletList = $('.detail-bullet-list span.a-list-item');
 		
 		$('.detail-bullet-list span.a-list-item').each((_, elem) => {
 			// 制御文字を含むすべての不可視文字を削除し、複数の空白を1つに
@@ -439,12 +444,12 @@ function extractIsbn($: cheerio.CheerioAPI): { isbn10: string, isbn13: string } 
 				.trim();
 			
 			if (text.includes('ISBN-13') && !isbn13) {
-				const match = text.match(/ISBN-13\s*[:：]\s*([0-9\-]+)/);
+				const match = text.match(/ISBN-13\s*[:：]\s*([0-9-]+)/);
 				if (match) {
 					isbn13 = match[1].replace(/-/g, '');
 				}
 			} else if (text.includes('ISBN-10') && !isbn10) {
-				const match = text.match(/ISBN-10\s*[:：]\s*([0-9\-]+)/);
+				const match = text.match(/ISBN-10\s*[:：]\s*([0-9-]+)/);
 				if (match) {
 					isbn10 = match[1].replace(/-/g, '');
 				}
@@ -515,8 +520,8 @@ function extractPaperbackAsin($: cheerio.CheerioAPI): string | null {
 	let foundAsin: string | null = null;
 	const formatsButtons = $('#formats .a-button-group a, #format .a-button-group a');
 	
-	formatsButtons.each((_, elem) => {
-		if (foundAsin) return false;
+	formatsButtons.each((_, elem): void => {
+		if (foundAsin) return;
 		
 		const text = $(elem).text().trim();
 		if (text.includes('単行本') || text.includes('文庫') || 
@@ -527,7 +532,6 @@ function extractPaperbackAsin($: cheerio.CheerioAPI): string | null {
 				const asin = extractAsin(href);
 				if (asin) {
 					foundAsin = asin;
-					return false;
 				}
 			}
 		}
@@ -538,8 +542,8 @@ function extractPaperbackAsin($: cheerio.CheerioAPI): string | null {
 	// 書籍形式のバリエーションテーブルから探す
 	const mediaTabs = $('#mediaTab_heading_0, #mediaTab_heading_1, #mediaTab_heading_2');
 	
-	mediaTabs.each((_, elem) => {
-		if (foundAsin) return false;
+	mediaTabs.each((_, elem): void => {
+		if (foundAsin) return;
 		
 		const text = $(elem).text().trim();
 		if (text.includes('単行本') || text.includes('文庫') || 
@@ -549,7 +553,6 @@ function extractPaperbackAsin($: cheerio.CheerioAPI): string | null {
 				const asin = extractAsin(link);
 				if (asin) {
 					foundAsin = asin;
-					return false;
 				}
 			}
 		}
@@ -581,8 +584,9 @@ async function fetchIsbnFromPaperback(asin: string): Promise<{ isbn10: string, i
 		const isbns = extractIsbn($);
 		
 		return isbns;
-	} catch (error) {
-		console.error(t('error_paperback_isbn'), error);
+	} catch (error: unknown) {
+		const errorMsg = error instanceof Error ? error.message : String(error);
+		console.error(t('error_paperback_isbn'), errorMsg);
 		return { isbn10: '', isbn13: '' };
 	}
 }
