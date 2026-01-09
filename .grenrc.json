@@ -1,0 +1,14 @@
+{
+  "dataSource": "prs",
+  "prefix": "",
+  "ignoreLabels": ["duplicate", "invalid", "wontfix"],
+  "ignoreIssuesWith": ["duplicate", "invalid", "wontfix"],
+  "ignoreTagsWith": [],
+  "onlyMilestones": false,
+  "changelogFilename": "CHANGELOG.md",
+  "template": {
+    "commit": "- {{message}} ([{{url}}]({{url}})) by @{{author}}",
+    "issue": "- {{labels}} {{name}} [#{{text}}]({{url}})",
+    "release": "## {{release}} ({{date}})\n{{body}}"
+  }
+}

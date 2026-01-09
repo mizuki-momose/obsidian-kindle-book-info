@@ -29,13 +29,19 @@ jobs:
           pnpm install
           pnpm run build
 
-      - name: Create release
+      - name: Install gren
+        run: npm install -g github-release-notes
+
+      - name: Generate release notes
+        env:
+          GREN_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tag="${GITHUB_REF#refs/tags/}"
+          gren release --tags="$tag" --override
+
+      - name: Upload release assets
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           tag="${GITHUB_REF#refs/tags/}"
-          
-          gh release create "$tag" \
-            --title="$tag" \
-            --draft \
-            main.js manifest.json styles.css
+          gh release upload "$tag" main.js manifest.json styles.css
