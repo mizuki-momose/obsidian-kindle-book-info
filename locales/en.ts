@@ -46,7 +46,7 @@ export const en = {
 	settings_image_folder_name: 'Image save folder',
 	settings_image_folder_desc: 'Folder to save downloaded images (click the input field to select from list)',
 	settings_show_ribbon_icon_name: 'Show ribbon icon',
-	settings_show_ribbon_icon_desc: 'Display kindle book note creation icon in the left ribbon area (requires obsidian restart after change)',
+	settings_show_ribbon_icon_desc: 'Display kindle book note creation icon in the left ribbon area',
 	settings_sample_template_title: 'Sample template',
 	settings_sample_template_intro: 'Available placeholders:',
 	settings_conditional_blocks: 'Conditional blocks: {{#isbn10}}...{{/isbn10}}, {{#isbn13}}...{{/isbn13}}',
@@ -85,14 +85,14 @@ Created: {{created}}
 	template_series: 'Series',
 	template_volume: 'Volume',
 	template_asin: 'asin',
-	template_isbn10: 'isbn-10',
-	template_isbn13: 'isbn-13',
+	template_isbn10: 'ISBN 10',
+	template_isbn13: 'ISBN 13',
 	template_thumbnail: 'Thumbnail',
 	template_url: 'URL',
 	template_description: 'Description',
 	template_created: 'Created',
-	template_description_heading: '## Description',
-	template_notes_heading: '## Notes',
+	template_description_heading: '## DESCRIPTION',
+	template_notes_heading: '## NOTES',
 };
 
 export type TranslationKey = keyof typeof en;
