@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.1.3 (13/01/2026)
+- [**closed**] Remove release guide documents [##10](https://github.com/mizuki-momose/obsidian-kindle-book-info/pull/10)
+- [**closed**] feat: add pnpm workspace configuration and improve settings UI [##13](https://github.com/mizuki-momose/obsidian-kindle-book-info/pull/13)
+- [**closed**] Add multi-language support (English and Japanese) [##8](https://github.com/mizuki-momose/obsidian-kindle-book-info/pull/8)
+- [**closed**] Update README: remove unapproved sections, add amazon.co.jp notice, and add English translation [##12](https://github.com/mizuki-momose/obsidian-kindle-book-info/pull/12)
+- [**closed**] Add setting to toggle ribbon icon visibility (default: hidden) [##6](https://github.com/mizuki-momose/obsidian-kindle-book-info/pull/6)
+- [**closed**] Prepare plugin for Obsidian community publication [##4](https://github.com/mizuki-momose/obsidian-kindle-book-info/pull/4)
+- [**closed**] Fix filename template to support isbn10 and isbn13 [##2](https://github.com/mizuki-momose/obsidian-kindle-book-info/pull/2)
+
+---
+
 ## 1.1.2 (09/01/2026)
 - [**closed**] Remove release guide documents [##10](https://github.com/mizuki-momose/obsidian-kindle-book-info/pull/10)
 - [**closed**] feat: add pnpm workspace configuration and improve settings UI [##13](https://github.com/mizuki-momose/obsidian-kindle-book-info/pull/13)
