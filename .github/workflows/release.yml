@@ -13,8 +13,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Use Node.js
         uses: actions/setup-node@v4
@@ -38,7 +36,8 @@ jobs:
         env:
           GREN_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gren release --override
+          tag="${GITHUB_REF#refs/tags/}"
+          gren release --tags="$tag" --override
 
       - name: Upload release assets
         env:
