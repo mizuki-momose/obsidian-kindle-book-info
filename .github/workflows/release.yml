@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - "*"
+  workflow_dispatch:
 
 jobs:
   build:
@@ -29,36 +30,16 @@ jobs:
           pnpm install
           pnpm run build
 
-      - name: Install gren
-        run: npm install -g github-release-notes
-
-      - name: Generate release notes
-        env:
-          GREN_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          tag="${GITHUB_REF#refs/tags/}"
-          gren release --tags="$tag" --override
-
-      - name: Upload release assets
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          generate_release_notes: true
+          draft: true
+          files: |
+            main.js
+            manifest.json
+            styles.css
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          tag="${GITHUB_REF#refs/tags/}"
-          gh release upload "$tag" main.js manifest.json styles.css
-
-      - name: Generate changelog
-        env:
-          GREN_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gren changelog --override
-
-      - name: Commit CHANGELOG.md
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git fetch origin main
-          git checkout main
-          git add CHANGELOG.md
-          git diff --cached --quiet || git commit -m "docs: update CHANGELOG.md for ${{ github.ref_name }}"
-          git push
 

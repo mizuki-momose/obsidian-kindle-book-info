@@ -84,15 +84,15 @@ Created: {{created}}
 	template_published: 'Published',
 	template_series: 'Series',
 	template_volume: 'Volume',
-	template_asin: 'asin',
-	template_isbn10: 'ISBN 10',
-	template_isbn13: 'ISBN 13',
+	template_asin: 'ASIN',
+	template_isbn10: 'ISBN-10',
+	template_isbn13: 'ISBN-13',
 	template_thumbnail: 'Thumbnail',
 	template_url: 'URL',
 	template_description: 'Description',
 	template_created: 'Created',
-	template_description_heading: '## DESCRIPTION',
-	template_notes_heading: '## NOTES',
+	template_description_heading: '## Description',
+	template_notes_heading: '## Notes',
 };
 
 export type TranslationKey = keyof typeof en;
